@@ -15,72 +15,48 @@ class App extends Component {
     this.calculateWaterBlocks = this.calculateWaterBlocks.bind(this);
   }
   
+ 
+
   calculateWaterBlocks = () => {
     let arr = this.state.arrText.split(',').map(function(item) {
       return parseInt(item, 10);
     });
-    if(arr.length <= 2){
+    let size = arr.length;
+    if(size <= 2){
       this.setState({ error: 'Please enter a array containing more than 2 elements'});
       return; 
     }else{
       this.setState({error: ''});
     }
-    let first  = arr[0];
-    let last = arr[arr.length-1];
-    let water = new Array(arr.length).fill(0);
-    let water1 = new Array(arr.length).fill(0);
-    var count  = 0;
-    for(let i = 0; i<arr.length;i++){
-      for(let j = i+1; j< arr.length; j++){
-        if(arr[j] > 0 && arr[i] > 0 && arr[j] >= arr[i]){
-          let max = Math.max(...arr.slice(i,j));
-          while(count<j){ 
-            if(arr[count] <= arr[j]&& max - arr[count] > water[i]){
-              water[count]= max - arr[count];
-            }
-            count++;
-          }
-          
-          i = count;
+    let waterMatrix = Array(size).fill(0);
+    let left = arr[0]
+    let right = arr[arr.length - 1]
+    let leftSide = Array(size).fill(0);
+    let rightSide = Array(size).fill(0);
+    for (let i = 1; i < size; i++) {  
+      if (arr[i] < left) {
+        leftSide[i] = left
+      } else {
+        left = arr[i]
+      }
+      if (arr[size-1-i] < right) {
+        rightSide[size-1-i] = right
+      } else {
+        right = arr[size - 1 - i]
+      }
+    }
+    let water = 0
+    for (let i = 0; i < size; i++) {
+        if (leftSide[i] && rightSide[i]) {
+            let min = leftSide[i] < rightSide[i] ? leftSide[i] : rightSide[i]
+            water += min - arr[i]
+            waterMatrix[i] = min - arr[i];
         }
-      }
-    }
-    arr =  arr.reverse();
-    count  = 0;
-    for(let i = 0; i<arr.length;i++){
-      for(let j = i+1; j< arr.length; j++){
-        if(arr[j] > 0 && arr[i] > 0 && arr[j] >= arr[i]){
-          let max = Math.max(...arr.slice(i,j));
-          while(count<j){ 
-            if(arr[count] <= arr[j]&& max - arr[count] > water1[i]){
-              water1[count]= max - arr[count];
-            }
-            count++;
-          }
-          
-          i = count;
-        }
-      }
-    }
-    water1 = water1.reverse();
-    for(let i = 0; i< water.length; i++){
-      if(water[i]>=water1[i]){
-        water[i] = water[i];
-      }else{
-        water[i] = water1[i];
-      }
-    }
-    if(first===0){
-      water[0] = 0;
-    }
-    if(last===0){
-      water[arr.length-1] = 0;
     }
     let maxBlock = Math.max(...arr);
-    this.createWaterMatrix(water, this.state.arrText.split(','), maxBlock+1);
-    
+    this.createWaterMatrix(waterMatrix, this.state.arrText.split(','), maxBlock+1);
   }
-
+  
   handleChange = (event) => {
     this.setState({arrText: event.target.value});
   }
