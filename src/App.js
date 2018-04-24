@@ -6,7 +6,6 @@ class App extends Component {
     super();
     this.state = {
       arrText: '',
-      array: [],
       error: '',
       renderedTable: false,
       waterMatrix: [[]],
@@ -17,13 +16,17 @@ class App extends Component {
   }
   
   calculateWaterBlocks = () => {
-    let arr = this.state.array;
+    let arr = this.state.arrText.split(',').map(function(item) {
+      return parseInt(item, 10);
+    });
     if(arr.length <= 2){
       this.setState({ error: 'Please enter a array containing more than 2 elements'});
       return; 
     }else{
       this.setState({error: ''});
     }
+    let first  = arr[0];
+    let last = arr[arr.length-1];
     let water = new Array(arr.length).fill(0);
     let water1 = new Array(arr.length).fill(0);
     var count  = 0;
@@ -67,13 +70,19 @@ class App extends Component {
         water[i] = water1[i];
       }
     }
+    if(first===0){
+      water[0] = 0;
+    }
+    if(last===0){
+      water[arr.length-1] = 0;
+    }
     let maxBlock = Math.max(...arr);
     this.createWaterMatrix(water, this.state.arrText.split(','), maxBlock+1);
     
   }
 
   handleChange = (event) => {
-    this.setState({arrText: event.target.value, array: event.target.value.split(',')});
+    this.setState({arrText: event.target.value});
   }
 
   createWaterMatrix(waterArr, arr, maxBlock){
